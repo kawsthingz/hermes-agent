@@ -56,8 +56,9 @@ def source_build_env(base_env: dict | None = None, *, explicit: bool = False, ve
     npmrc = Path(userconfig).expanduser() if userconfig else Path.home() / ".npmrc"
     if npmrc.is_file():
         # pnpm reads that file only for its registry and auth. npm also handed every
-        # other key to dependency install scripts as npm_config_<key>, which is how
-        # node-pre-gyp finds a binary mirror (node_get_windows_binary_host_mirror).
+        # other key to the processes it spawned as npm_config_<key>; keep doing that,
+        # since it is how node-pre-gyp (run by stage-native-deps.mjs on Windows) finds
+        # a binary mirror (node_get_windows_binary_host_mirror).
         inherited = {name.upper() for name in env}
         for key, value in _npmrc_script_settings(npmrc, env):
             name = f"npm_config_{key.replace('-', '_')}"
